@@ -2,6 +2,7 @@ package models
 
 import (
 	"awesomeProject/tool"
+	"fmt"
 	"strconv"
 )
 
@@ -24,6 +25,19 @@ func NewCompany() *Company {
 func (m *Company) TableName() string {
 	return "company"
 }
+
+func (this Company) GetCompanyInfo(where string, value string) (Company *Company, err error) {
+	fmt.Println(where, value)
+	res := tool.DB.Where(where, value).Find(&Company)
+	fmt.Println(Company)
+	if res.Error != nil {
+		err = res.Error
+		return
+	}
+	err = nil
+	return
+}
+
 func (this *Company) AddCompany() error {
 	res := tool.DB.Create(this)
 	if res.Error != nil {

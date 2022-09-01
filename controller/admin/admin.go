@@ -19,7 +19,11 @@ type PostMessage struct {
 
 type CompanyListMessage struct {
 	PostMessage
-	List *[]models.Company
+	List *[]models.Company `json:"list"`
+}
+type CompanyInfoMessage struct {
+	PostMessage
+	CompanyInfo *models.Company `json:"company_info"`
 }
 
 func (this AdminController) Login(c *gin.Context) {
@@ -95,4 +99,24 @@ func (this AdminController) GetUserList(c *gin.Context) {
 		List:        list,
 	})
 
+}
+func (this AdminController) GetUserInfo(c *gin.Context) {
+	userId := c.Param("id")
+	if userId == "" {
+		c.JSONP(http.StatusOK, PostMessage{
+			Code:    220,
+			Message: "请携带id请求",
+		})
+		return
+	}
+	userInfo, err := models.Company{}.GetCompanyInfo("id = ?", userId)
+	if err != nil {
+		fmt.Println(err)
+		c.JSONP(http.StatusOK, PostMessage{500, "系统错误，查询失败"})
+		return
+	}
+	c.JSONP(http.StatusOK, CompanyInfoMessage{
+		PostMessage: PostMessage{200, "请求成功"},
+		CompanyInfo: userInfo,
+	})
 }
