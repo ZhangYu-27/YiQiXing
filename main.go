@@ -17,5 +17,5 @@ func main() {
 	//	name := c.Param("page")
 	//	c.String(http.StatusOK, "Hello %s", name)
 	//})
-	r.Run(":8800")
+	r.Run("0.0.0.0:8800")
 }

@@ -16,10 +16,20 @@ type Company struct {
 	Trademark      string `json:"trademark" gorm:"column:trademark" form:"trademark"`                                               // 商标用逗号分割
 	CreateAt       string `json:"create_at" gorm:"column:create_at"`                                                                // 创建时间
 	NextFollowTime string `json:"next_follow_time" gorm:"column:next_follow_time" form:"next_follow_time" time_format:"2006-01-02"` // 下次跟进时间
+	IsVip          string `json:"is_vip" gorm:"column:is_vip"`
+}
+
+type UpdateCompanyVip struct {
+	ID    int    `json:"id" gorm:"column:id" form:"company_id" binding:"required"` // 企业id
+	IsVip string `json:"is_vip" gorm:"column:is_vip" form:"is_vip" binding:"required"`
 }
 
 func NewCompany() *Company {
 	return &Company{}
+}
+
+func (*UpdateCompanyVip) TableName() string {
+	return "company"
 }
 
 func (m *Company) TableName() string {
@@ -46,7 +56,7 @@ func (this *Company) AddCompany() error {
 		return nil
 	}
 }
-func (this Company) GetCompanyList(pages string, pageSizes string) (list *[]Company, err error) {
+func (this Company) GetCompanyList(pages string, pageSizes string, where string, value string) (list *[]Company, err error) {
 	page, err := strconv.Atoi(pages)
 	if err != nil {
 		return
@@ -61,6 +71,14 @@ func (this Company) GetCompanyList(pages string, pageSizes string) (list *[]Comp
 	if pageSize <= 0 || pageSize > 100 {
 		pageSize = 50
 	}
-	res := tool.DB.Offset((page - 1) * pageSize).Limit(pageSize).Find(&list)
+	res := tool.DB.Offset((page-1)*pageSize).Where(where, value).Limit(pageSize).Order("id desc").Find(&list)
 	return list, res.Error
+}
+
+func (this *UpdateCompanyVip) UpdateCompanyVip() error {
+	res := tool.DB.Save(this)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
 }

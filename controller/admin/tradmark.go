@@ -15,6 +15,10 @@ type TradmarkListMessage struct {
 	PostMessage
 	List *[]models.Tradmark
 }
+type TradmarkInfo struct {
+	PostMessage
+	Info *models.Tradmark
+}
 
 func (this TradmarkController) AddTradmark(c *gin.Context) {
 	tradmark := &models.Tradmark{}
@@ -65,7 +69,6 @@ func (this TradmarkController) GetTradmarkList(c *gin.Context) {
 		List:        tradmarkList,
 	})
 }
-
 func (this TradmarkController) UpdateTradmark(c *gin.Context) {
 	updateTradmark := &models.UpdateTradmark{}
 	err := c.ShouldBind(updateTradmark)
@@ -81,4 +84,18 @@ func (this TradmarkController) UpdateTradmark(c *gin.Context) {
 		return
 	}
 	c.JSONP(http.StatusOK, PostMessage{http.StatusOK, "更新成功"})
+}
+func (this TradmarkController) GetTradmark(c *gin.Context) {
+	tradmarkId := c.Param("tradmark_id")
+	tradmarkInfo, err := models.Tradmark{}.GetTradmarkInfo("id = ?", tradmarkId)
+	if err != nil {
+		fmt.Println(err)
+		c.JSONP(http.StatusOK, PostMessage{500, "系统错误"})
+		return
+	}
+	c.JSONP(http.StatusOK, TradmarkInfo{
+		PostMessage: PostMessage{200, "请求成功"},
+		Info:        tradmarkInfo,
+	})
+
 }

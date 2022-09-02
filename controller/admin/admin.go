@@ -84,8 +84,12 @@ func (this AdminController) GetUserList(c *gin.Context) {
 	if numS == "" {
 		numS = "20"
 	}
-
-	list, err := models.Company{}.GetCompanyList(pageS, numS)
+	var where string
+	value := c.Param("is_vip")
+	if value != "0" {
+		where = "is_vip = ?"
+	}
+	list, err := models.Company{}.GetCompanyList(pageS, numS, where, value)
 	if err != nil {
 		fmt.Println(err)
 		c.JSONP(http.StatusOK, PostMessage{
@@ -119,4 +123,20 @@ func (this AdminController) GetUserInfo(c *gin.Context) {
 		PostMessage: PostMessage{200, "请求成功"},
 		CompanyInfo: userInfo,
 	})
+}
+func (this AdminController) UpdateCompany(c *gin.Context) {
+	update := &models.UpdateCompanyVip{}
+	err := c.ShouldBind(update)
+	if err != nil {
+		c.JSONP(http.StatusOK, PostMessage{500, err.Error()})
+		fmt.Println("", err)
+		return
+	}
+	err = update.UpdateCompanyVip()
+	if err != nil {
+		fmt.Println("", err)
+		c.JSONP(http.StatusOK, PostMessage{500, "修改失败"})
+		return
+	}
+	c.JSONP(http.StatusOK, PostMessage{200, "修改成功"})
 }

@@ -56,3 +56,11 @@ func (this *UpdateTradmark) UpdateTradmark() error {
 	}
 	return nil
 }
+func (this Tradmark) GetTradmarkInfo(where string, value string) (tradmarkInfo *Tradmark, err error) {
+
+	res := tool.DB.Where(where, value).Find(&tradmarkInfo)
+	if res.Error != nil {
+		return tradmarkInfo, res.Error
+	}
+	return tradmarkInfo, nil
+}
